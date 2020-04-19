@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	
+	<meta charset="UTF-8">
+
+	<style type="text/css">
+		canvas{
+			border: 1px solid #ccc;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="game" width="550" height="500"></canvas>
+	<script type="text/javascript">
+		const canvas = document.getElementById('game');
+		const ctx = canvas.getContext('2d');
+
+		var userCharacter = new Car(6, ctx.canvas.height-200, '#2a2526');
+		var enemyLeft1 = new Car(3, 0, '#2a2526');
+		var enemyRight1 = new Car(9, 0, '#2a2526');
+		var gameArea = new Scenario();
+
+		renderScreen();
+		function Scenario() {
+			this.draw = function () {
+				ctx.fillStyle = "#2a2526";
+				ctx.fillRect(0, 0, 50, ctx.canvas.height)
+				ctx.fillRect(ctx.canvas.width-50, 0, 50, ctx.canvas.height);
+			}
+			this.clear = function () {
+				ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height);
+			}
+			this.update = function () {
+				this.clear();
+				this.draw();
+			}
+		}
+
+		function Car(mcarposition, blockYInit, color) {
+			if (!(this instanceof Car)) {
+				return new Car(mcarposition, blockYInit);
+			}
+
+			this.blockYInit = blockYInit;
+			this.position = mcarposition;
+
+			this.toLeft = function () {
+				this.position--;
+			}
+			this.toRight = function () {
+				this.position++;
+			}
+			this.toUp = function () {
+				this.blockYInit -= this.blockHeight;
+			}
+			this.toDown = function () {
+				this.blockYInit += this.blockHeight;
+				console.log("oi");
+			}
+			this.draw = function () {
+				this.speedY = 0;
+				this.blockWidth = 50;
+				this.blockHeight = 50;
+				this.blockCenterStart = this.position*this.blockWidth-this.blockWidth;
+				this.blockLeftStart   = this.blockCenterStart-this.blockWidth;
+				this.blockRightStart  = this.blockCenterStart+this.blockWidth;
+
+				ctx.fillStyle = color;
+
+				ctx.fillRect(this.blockCenterStart, this.blockYInit,                    this.blockWidth, this.blockHeight);
+				ctx.fillRect(this.blockLeftStart,   this.blockHeight+this.blockYInit,   this.blockWidth, this.blockHeight);
+				ctx.fillRect(this.blockRightStart,  this.blockHeight+this.blockYInit,   this.blockWidth, this.blockHeight);
+				
+				ctx.fillRect(this.blockCenterStart, this.blockHeight*2+this.blockYInit, this.blockWidth, this.blockHeight);
+				ctx.fillRect(this.blockLeftStart,   this.blockHeight*3+this.blockYInit, this.blockWidth, this.blockHeight);
+				ctx.fillRect(this.blockRightStart,  this.blockHeight*3+this.blockYInit, this.blockWidth, this.blockHeight);
+			}
+		}
+
+		function renderScreen() {
+			gameArea.update();
+			userCharacter.draw();
+			enemyLeft1.draw();
+			enemyRight1.draw();
+			requestAnimationFrame(renderScreen);
+		}
+		
+		window.addEventListener('keydown', function(e) {
+			if (e.key == 'ArrowLeft') {
+				if (userCharacter.position <= 3) {
+					userCharacter.position = 3;
+				}else{
+					userCharacter.toLeft();
+				}
+			}else if(e.key == 'ArrowRight'){
+				if (userCharacter.position >= 9) {
+					userCharacter.position = 9;
+				}else{
+					userCharacter.toRight();
+				}
+			}else if (e.key == 'ArrowUp') {
+				userCharacter.toUp();
+			}else if (e.key == 'ArrowDown') {
+				userCharacter.toDown();
+			}
+		})
+	</script>
+</body>
+</html>
